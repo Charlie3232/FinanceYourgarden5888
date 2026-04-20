@@ -14,24 +14,18 @@
 
     <style>
         :root {
-            /* POP MART 風格配色 */
             --bg-color: #F4F6F8;
             --card-bg: #FFFFFF;
-            
-            /* 漸層主色調 (綠色系) */
             --gradient-primary: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             --gradient-btn: linear-gradient(90deg, #00b09b 0%, #96c93d 100%);
-            
             --text-dark: #2D3436;
             --text-gray: #636E72;
-            
             --radius-box: 24px;
             --radius-input: 16px;
             --shadow-float: 0 15px 35px rgba(0,0,0,0.08);
         }
 
         body { 
-            /* ★★★ 全站套用 Zen Maru Gothic ★★★ */
             font-family: 'Zen Maru Gothic', sans-serif;
             background-color: var(--bg-color); 
             color: var(--text-dark); 
@@ -39,10 +33,9 @@
             padding: 0; 
             padding-bottom: 120px;
             -webkit-font-smoothing: antialiased;
-            font-weight: 500; /* 預設稍微粗一點，比較可愛 */
+            font-weight: 500;
         }
 
-        /* 背景裝飾 */
         body::before {
             content: ''; position: fixed; top: -100px; left: -50px; width: 300px; height: 300px;
             background: #55efc4; filter: blur(120px); opacity: 0.15; z-index: -1; border-radius: 50%;
@@ -54,7 +47,6 @@
 
         .container { max-width: 500px; margin: 0 auto; padding: 20px; }
         
-        /* 標題設計 */
         .app-header { 
             position: relative;
             text-align: center; 
@@ -65,13 +57,12 @@
         .app-header h1 { 
             margin: 0; 
             font-family: 'Zen Maru Gothic', sans-serif;
-            font-weight: 900; /* 極粗體 */
+            font-weight: 900;
             font-size: 32px; 
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: 2px;
-            /* 讓標題有點可愛的陰影 */
             filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.05));
         }
         .app-header span { 
@@ -81,7 +72,7 @@
             font-weight: 700; 
             display: block;
             margin-top: 5px;
-            font-family: 'Outfit', sans-serif; /* 英文副標題用 Outfit 比較俐落 */
+            font-family: 'Outfit', sans-serif;
         }
         
         .author-signature {
@@ -94,7 +85,6 @@
             font-family: 'Outfit', cursive;
         }
 
-        /* 卡片設計 */
         .card { 
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
@@ -129,7 +119,6 @@
             color: #11998e; font-weight: 900; text-align: right; font-size: 20px;
         }
 
-        /* 按鈕設計 */
         .submit-btn { 
             width: 100%; background: var(--gradient-btn); color: white; border: none; 
             padding: 16px; border-radius: 50px; font-size: 18px; font-weight: 700; 
@@ -141,7 +130,6 @@
         .submit-btn:active { transform: scale(0.98); }
         .submit-btn:disabled { background: #dfe6e9; box-shadow: none; color: #b2bec3; }
 
-        /* 圖表區塊 */
         .chart-wrapper { 
             margin-bottom: 25px; background: white; border-radius: 20px; padding: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
@@ -158,12 +146,10 @@
         
         .stats-loading { text-align: center; padding: 50px; color: var(--text-gray); }
 
-        /* 分頁切換 */
         .tab-content { display: none; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .tab-content.active { display: block; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        /* 懸浮導航列 */
         .nav-bar { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             width: 85%; max-width: 400px;
@@ -182,7 +168,6 @@
         }
         .nav-icon { font-size: 18px; margin-right: 6px; }
 
-        /* 遮罩與彈窗 */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); z-index: 9998; }
         .bottom-modal { 
             display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; 
@@ -190,7 +175,6 @@
             box-sizing: border-box; z-index: 9999; box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
         }
         
-        /* 鍵盤 */
         .keypad-header { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-dark); }
         .keypad-display-screen { 
             background: #F0F2F5; border: none; border-radius: 16px; padding: 20px; 
@@ -301,7 +285,7 @@
 
 <script>
     // ★★★ 請確認您的 GAS 網址是否正確 ★★★
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyJZPruu8GIW2EH7O8whPFo86rZ_G7upIjHhAUc4PMLUX-t2RNxXUmuUzl0AcHsQVg/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqgy50uw0JCbKgJbU-dc-NxzN_8meZNEWNWBEFteYaghOoEwVv9iRF95DK6fJp6tcdhg/exec";
 
     const costCategories = ["植物叫貨", "運費", "店面成本", "盆器叫貨", "介質費用", "廣告", "人事", "其他", "營業收入"];
 
@@ -325,7 +309,6 @@
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         const navIndex = tabName === 'record' ? 0 : 1;
         document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
-
         if (tabName === 'stats') {
             if (!charts.revenue && !charts.profit && !charts.cost) {
                 loadStats();
@@ -348,12 +331,8 @@
         .then(data => {
             if (data.status === 'success') {
                 msgDiv.style.display = 'none';
-                
-                // 1. 營收: 深綠色
                 renderSingleChart('chartRevenue', data.datasets[0], '#1e8449', '#27ae60', 'revenue');
-                // 2. 利潤: 淺綠色
                 renderSingleChart('chartProfit', data.datasets[1], '#2ed573', '#7bed9f', 'profit');
-                // 3. 成本: 橘色
                 renderSingleChart('chartCost', data.datasets[2], '#fa8231', '#fed330', 'cost');
             } else {
                 msgDiv.innerHTML = '❌ Error: ' + data.message;
@@ -367,7 +346,6 @@
 
     function renderSingleChart(canvasId, dataset, color, bgColor, chartKey) {
         const ctx = document.getElementById(canvasId).getContext('2d');
-        
         let gradient = ctx.createLinearGradient(0, 0, 0, 300);
         gradient.addColorStop(0, color);
         gradient.addColorStop(1, bgColor);
@@ -379,9 +357,9 @@
                 datasets: [{
                     label: dataset.label,
                     data: dataset.data,
-                    backgroundColor: gradient, 
-                    borderRadius: 8, 
-                    barPercentage: 0.6 
+                    backgroundColor: gradient,
+                    borderRadius: 8,
+                    barPercentage: 0.6
                 }]
             },
             options: {
@@ -405,10 +383,10 @@
                         align: 'end',
                         anchor: 'end',
                         offset: -5,
-                        color: color, 
+                        color: color,
                         font: { weight: '800', size: 11, family: 'Zen Maru Gothic' },
                         formatter: function(value) {
-                            return value === 0 ? '' : value.toLocaleString(); 
+                            return value === 0 ? '' : value.toLocaleString();
                         }
                     }
                 },
@@ -430,6 +408,7 @@
 
     // 計算機邏輯
     let currentInputId = null; let tempValue = ""; let isPasswordMode = false;
+
     function openKeypad(mode) {
         document.getElementById('overlay').style.display = 'block';
         const modal = document.getElementById('keypad-modal');
@@ -448,20 +427,54 @@
     function backspaceKey() { tempValue = tempValue.substring(0, tempValue.length - 1); updateScreen(); }
     function clearKey() { tempValue = ''; updateScreen(); }
     function updateScreen() { const screen = document.getElementById('keypad-screen'); screen.innerText = (isPasswordMode) ? (tempValue === '' ? '' : tempValue) : (tempValue === '' ? '0' : tempValue); }
+
     function confirmKeypad() {
         if (isPasswordMode) {
-            if (tempValue === '1332') { closeKeypad(); realSubmit(); } else { alert("❌ Wrong Password!"); tempValue = ''; updateScreen(); }
-        } else { document.getElementById(currentInputId).value = tempValue; closeKeypad(); }
+            if (tempValue === '1332') { closeKeypad(); realSubmit(); } 
+            else { alert("❌ Wrong Password!"); tempValue = ''; updateScreen(); }
+        } else { 
+            document.getElementById(currentInputId).value = tempValue; closeKeypad(); 
+        }
     }
-    function initiateSubmit() { const price = document.getElementById('price').value; if (!price) { alert("Please enter amount!"); return; } openKeypad('password'); }
+
+    function initiateSubmit() { 
+        const price = document.getElementById('price').value; 
+        if (!price) { alert("Please enter amount!"); return; } 
+        openKeypad('password'); 
+    }
+
+    // ★ 修正版：移除 no-cors，改用 text/plain，確保資料正確寫入
     function realSubmit() {
         const btn = document.getElementById('submitBtn');
-        if(!SCRIPT_URL.startsWith("http")) { alert("Please set GAS URL!"); return; }
         btn.disabled = true; btn.innerText = "Sending...";
-        const data = { date: document.getElementById('recordDate').value, category: document.getElementById('category').value, price: document.getElementById('price').value, note: document.getElementById('note').value };
-        fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(() => {
-            alert("✅ Success!"); document.getElementById('price').value = ''; document.getElementById('note').value = ''; btn.disabled = false; btn.innerText = "確認記帳 ✨";
-        }).catch(err => { alert("❌ Error：" + err); btn.disabled = false; btn.innerText = "確認記帳 ✨"; });
+
+        const data = {
+            date: document.getElementById('recordDate').value,
+            category: document.getElementById('category').value,
+            price: document.getElementById('price').value,
+            note: document.getElementById('note').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.result === 'success') {
+                alert("✅ 記帳成功！");
+                document.getElementById('price').value = '';
+                document.getElementById('note').value = '';
+            } else {
+                alert("❌ 失敗：" + result.message);
+            }
+            btn.disabled = false; btn.innerText = "確認記帳 ✨";
+        })
+        .catch(err => {
+            alert("❌ Error：" + err);
+            btn.disabled = false; btn.innerText = "確認記帳 ✨";
+        });
     }
 </script>
 
