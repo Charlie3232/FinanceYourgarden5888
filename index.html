@@ -138,9 +138,9 @@
             font-size: 18px; font-weight: 700; color: #2D3436; margin-bottom: 15px; 
             display: flex; align-items: center;
         }
-        .chart-title::before {
-            content: ''; display: inline-block; width: 10px; height: 10px;
-            border-radius: 50%; margin-right: 8px;
+        .chart-title .dot {
+            display: inline-block; width: 10px; height: 10px;
+            border-radius: 50%; margin-right: 8px; flex-shrink: 0;
         }
         .chart-box { position: relative; height: 260px; width: 100%; }
         
@@ -235,26 +235,42 @@
 
             <div id="stats-msg" class="stats-loading">Loading Data...<br>⏳</div>
 
+            <!-- 營收 -->
             <div class="chart-wrapper">
-                <div class="chart-title" style="color: #1e8449;">
-                    <span style="background:#1e8449;"></span> 營收 (Revenue)
+                <div class="chart-title">
+                    <span class="dot" style="background:#1e8449;"></span>
+                    <span style="color:#1e8449;">營收 (Revenue)</span>
                 </div>
                 <div class="chart-box"><canvas id="chartRevenue"></canvas></div>
             </div>
 
+            <!-- 利潤 -->
             <div class="chart-wrapper">
-                <div class="chart-title" style="color: #2ed573;">
-                    <span style="background:#2ed573;"></span> 利潤 (Profit)
+                <div class="chart-title">
+                    <span class="dot" style="background:#2ed573;"></span>
+                    <span style="color:#2ed573;">利潤 (Profit)</span>
                 </div>
                 <div class="chart-box"><canvas id="chartProfit"></canvas></div>
             </div>
 
+            <!-- 成本 -->
             <div class="chart-wrapper">
-                <div class="chart-title" style="color: #fa8231;">
-                    <span style="background:#fa8231;"></span> 成本 (Cost)
+                <div class="chart-title">
+                    <span class="dot" style="background:#fa8231;"></span>
+                    <span style="color:#fa8231;">成本 (Cost)</span>
                 </div>
                 <div class="chart-box"><canvas id="chartCost"></canvas></div>
             </div>
+
+            <!-- 毛利率 ★ 新增 -->
+            <div class="chart-wrapper">
+                <div class="chart-title">
+                    <span class="dot" style="background:#a55eea;"></span>
+                    <span style="color:#a55eea;">毛利率 (Gross Margin %)</span>
+                </div>
+                <div class="chart-box"><canvas id="chartMargin"></canvas></div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -284,14 +300,13 @@
 </div>
 
 <script>
-    // ★★★ 請確認您的 GAS 網址是否正確 ★★★
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqgy50uw0JCbKgJbU-dc-NxzN_8meZNEWNWBEFteYaghOoEwVv9iRF95DK6fJp6tcdhg/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwhkS6MNRU_qD7Ug2eC9iV7m8BSpzdLw0rIEK6ZDwkibidTpgaBKqCMLV-zW-w3dguDTw/exec";
 
     const costCategories = ["植物叫貨", "運費", "店面成本", "盆器叫貨", "介質費用", "廣告", "人事", "其他", "營業收入"];
 
     Chart.register(ChartDataLabels);
 
-    let charts = { revenue: null, profit: null, cost: null };
+    let charts = { revenue: null, profit: null, cost: null, margin: null };
 
     window.onload = function() {
         document.getElementById('recordDate').valueAsDate = new Date();
@@ -310,7 +325,7 @@
         const navIndex = tabName === 'record' ? 0 : 1;
         document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
         if (tabName === 'stats') {
-            if (!charts.revenue && !charts.profit && !charts.cost) {
+            if (!charts.revenue && !charts.profit && !charts.cost && !charts.margin) {
                 loadStats();
             }
         }
@@ -321,19 +336,17 @@
         msgDiv.innerHTML = 'Data Loading...<br>⏳';
         msgDiv.style.display = 'block';
 
-        if(charts.revenue) charts.revenue.destroy();
-        if(charts.profit) charts.profit.destroy();
-        if(charts.cost) charts.cost.destroy();
-        charts = { revenue: null, profit: null, cost: null };
+        Object.keys(charts).forEach(k => { if(charts[k]) { charts[k].destroy(); charts[k] = null; } });
 
         fetch(SCRIPT_URL + '?op=get_stats')
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
                 msgDiv.style.display = 'none';
-                renderSingleChart('chartRevenue', data.datasets[0], '#1e8449', '#27ae60', 'revenue');
-                renderSingleChart('chartProfit', data.datasets[1], '#2ed573', '#7bed9f', 'profit');
-                renderSingleChart('chartCost', data.datasets[2], '#fa8231', '#fed330', 'cost');
+                renderBarChart('chartRevenue', data.datasets[0], '#1e8449', '#27ae60', 'revenue');
+                renderBarChart('chartProfit',  data.datasets[1], '#2ed573', '#7bed9f', 'profit');
+                renderBarChart('chartCost',    data.datasets[2], '#fa8231', '#fed330', 'cost');
+                renderLineChart('chartMargin', data.datasets[3], '#a55eea', 'margin'); // ★ 毛利率折線圖
             } else {
                 msgDiv.innerHTML = '❌ Error: ' + data.message;
             }
@@ -344,7 +357,8 @@
         });
     }
 
-    function renderSingleChart(canvasId, dataset, color, bgColor, chartKey) {
+    // 長條圖 (營收/利潤/成本)
+    function renderBarChart(canvasId, dataset, color, bgColor, chartKey) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         let gradient = ctx.createLinearGradient(0, 0, 0, 300);
         gradient.addColorStop(0, color);
@@ -353,7 +367,7 @@
         charts[chartKey] = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                labels: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
                 datasets: [{
                     label: dataset.label,
                     data: dataset.data,
@@ -372,22 +386,67 @@
                         backgroundColor: '#2D3436',
                         titleFont: { family: 'Zen Maru Gothic' },
                         bodyFont: { family: 'Zen Maru Gothic', size: 14 },
-                        padding: 10,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) { return '$ ' + context.raw.toLocaleString(); }
-                        }
+                        padding: 10, cornerRadius: 8,
+                        callbacks: { label: ctx => '$ ' + ctx.raw.toLocaleString() }
                     },
                     datalabels: {
-                        display: true,
-                        align: 'end',
-                        anchor: 'end',
-                        offset: -5,
+                        display: true, align: 'end', anchor: 'end', offset: -5,
                         color: color,
                         font: { weight: '800', size: 11, family: 'Zen Maru Gothic' },
-                        formatter: function(value) {
-                            return value === 0 ? '' : value.toLocaleString();
-                        }
+                        formatter: v => v === 0 ? '' : v.toLocaleString()
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false }, grace: '10%', ticks: { font: { family: 'Zen Maru Gothic' } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Zen Maru Gothic', size: 11 } } }
+                }
+            }
+        });
+    }
+
+    // ★ 折線圖 (毛利率)
+    function renderLineChart(canvasId, dataset, color, chartKey) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+
+        let gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, color + '55');
+        gradient.addColorStop(1, color + '00');
+
+        charts[chartKey] = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+                datasets: [{
+                    label: dataset.label,
+                    data: dataset.data,
+                    borderColor: color,
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: color,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 30 } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#2D3436',
+                        titleFont: { family: 'Zen Maru Gothic' },
+                        bodyFont: { family: 'Zen Maru Gothic', size: 14 },
+                        padding: 10, cornerRadius: 8,
+                        callbacks: { label: ctx => ctx.raw.toLocaleString() + ' %' }
+                    },
+                    datalabels: {
+                        display: true, align: 'top', anchor: 'end', offset: 2,
+                        color: color,
+                        font: { weight: '800', size: 11, family: 'Zen Maru Gothic' },
+                        formatter: v => v === 0 ? '' : v.toLocaleString() + '%'
                     }
                 },
                 scales: {
@@ -395,12 +454,12 @@
                         beginAtZero: true,
                         grid: { display: false },
                         grace: '10%',
-                        ticks: { font: { family: 'Zen Maru Gothic' } }
+                        ticks: {
+                            font: { family: 'Zen Maru Gothic' },
+                            callback: v => v + '%'
+                        }
                     },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { family: 'Zen Maru Gothic', size: 11 } }
-                    }
+                    x: { grid: { display: false }, ticks: { font: { family: 'Zen Maru Gothic', size: 11 } } }
                 }
             }
         });
@@ -426,24 +485,23 @@
     function pressKey(num) { tempValue += num; updateScreen(); }
     function backspaceKey() { tempValue = tempValue.substring(0, tempValue.length - 1); updateScreen(); }
     function clearKey() { tempValue = ''; updateScreen(); }
-    function updateScreen() { const screen = document.getElementById('keypad-screen'); screen.innerText = (isPasswordMode) ? (tempValue === '' ? '' : tempValue) : (tempValue === '' ? '0' : tempValue); }
+    function updateScreen() { const screen = document.getElementById('keypad-screen'); screen.innerText = isPasswordMode ? (tempValue === '' ? '' : tempValue) : (tempValue === '' ? '0' : tempValue); }
 
     function confirmKeypad() {
         if (isPasswordMode) {
-            if (tempValue === '1332') { closeKeypad(); realSubmit(); } 
+            if (tempValue === '1332') { closeKeypad(); realSubmit(); }
             else { alert("❌ Wrong Password!"); tempValue = ''; updateScreen(); }
-        } else { 
-            document.getElementById(currentInputId).value = tempValue; closeKeypad(); 
+        } else {
+            document.getElementById(currentInputId).value = tempValue; closeKeypad();
         }
     }
 
-    function initiateSubmit() { 
-        const price = document.getElementById('price').value; 
-        if (!price) { alert("Please enter amount!"); return; } 
-        openKeypad('password'); 
+    function initiateSubmit() {
+        const price = document.getElementById('price').value;
+        if (!price) { alert("Please enter amount!"); return; }
+        openKeypad('password');
     }
 
-    // ★ 修正版：移除 no-cors，改用 text/plain，確保資料正確寫入
     function realSubmit() {
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "Sending...";
