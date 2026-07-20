@@ -110,6 +110,9 @@
             color: var(--text-dark); transition: 0.2s;
             font-weight: 500;
         }
+        button, .clickable-input, .overlay {
+            touch-action: manipulation;
+        }
         input:focus, select:focus { 
             outline: none; background: #FFFFFF;
             box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.2);
@@ -216,7 +219,7 @@
             </div>
             <div class="form-row">
                 <label>AMOUNT / 金額</label>
-                <input type="number" class="clickable-input" id="price" placeholder="$0" readonly onclick="openKeypad('price')">
+                <input type="text" inputmode="none" class="clickable-input" id="price" placeholder="$0" readonly onclick="openKeypad('price')">
             </div>
             <div class="form-row">
                 <label>NOTE / 備註</label>
@@ -291,11 +294,11 @@
     <div id="keypad-title" class="keypad-header">輸入金額</div>
     <div id="keypad-screen" class="keypad-display-screen">0</div>
     <div class="keypad-grid">
-        <button class="key-btn" onclick="pressKey(7)">7</button><button class="key-btn" onclick="pressKey(8)">8</button><button class="key-btn" onclick="pressKey(9)">9</button>
-        <button class="key-btn" onclick="pressKey(4)">4</button><button class="key-btn" onclick="pressKey(5)">5</button><button class="key-btn" onclick="pressKey(6)">6</button>
-        <button class="key-btn" onclick="pressKey(1)">1</button><button class="key-btn" onclick="pressKey(2)">2</button><button class="key-btn" onclick="pressKey(3)">3</button>
-        <button class="key-btn clear" onclick="clearKey()">C</button><button class="key-btn" onclick="pressKey(0)">0</button><button class="key-btn backspace" onclick="backspaceKey()">⌫</button>
-        <button class="key-btn confirm" onclick="confirmKeypad()">OK</button>
+        <button type="button" class="key-btn" onclick="pressKey(7)">7</button><button type="button" class="key-btn" onclick="pressKey(8)">8</button><button type="button" class="key-btn" onclick="pressKey(9)">9</button>
+        <button type="button" class="key-btn" onclick="pressKey(4)">4</button><button type="button" class="key-btn" onclick="pressKey(5)">5</button><button type="button" class="key-btn" onclick="pressKey(6)">6</button>
+        <button type="button" class="key-btn" onclick="pressKey(1)">1</button><button type="button" class="key-btn" onclick="pressKey(2)">2</button><button type="button" class="key-btn" onclick="pressKey(3)">3</button>
+        <button type="button" class="key-btn clear" onclick="clearKey()">C</button><button type="button" class="key-btn" onclick="pressKey(0)">0</button><button type="button" class="key-btn backspace" onclick="backspaceKey()">⌫</button>
+        <button type="button" class="key-btn confirm" onclick="confirmKeypad()">OK</button>
     </div>
 </div>
 
@@ -469,6 +472,7 @@
     let currentInputId = null; let tempValue = ""; let isPasswordMode = false;
 
     function openKeypad(mode) {
+        blurActiveElement();
         document.getElementById('overlay').style.display = 'block';
         const modal = document.getElementById('keypad-modal');
         modal.style.display = 'block';
@@ -481,7 +485,12 @@
         }
         updateScreen();
     }
-    function closeKeypad() { document.getElementById('overlay').style.display = 'none'; document.getElementById('keypad-modal').style.display = 'none'; }
+    function closeKeypad() { blurActiveElement(); document.getElementById('overlay').style.display = 'none'; document.getElementById('keypad-modal').style.display = 'none'; }
+    function blurActiveElement() {
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+        }
+    }
     function pressKey(num) { tempValue += num; updateScreen(); }
     function backspaceKey() { tempValue = tempValue.substring(0, tempValue.length - 1); updateScreen(); }
     function clearKey() { tempValue = ''; updateScreen(); }
